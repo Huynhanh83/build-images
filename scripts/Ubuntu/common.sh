@@ -277,6 +277,7 @@ function configure_apt() {
 }
 
 function install_tools() {
+    echo "Running install_tools..."
     declare tools_array
     # utilities
     tools_array=( "zip" "unzip" "wget" "curl" "time" "tree" "telnet" "dnsutils" "file" "ftp" "lftp" )
@@ -317,6 +318,7 @@ function install_tools() {
 
 # this exact packages required to communicate with HyperV
 function install_KVP_packages(){
+    echo "Running install_KVP_packages..."
     local KERNEL_VERSION
     # running kernel (which version returns uname -r) may differ from updated one
     KERNEL_VERSION=$(ls -tr /boot/initrd.img-* | tail -n1)
@@ -364,6 +366,7 @@ function copy_appveyoragent() {
 }
 
 function install_appveyoragent() {
+    echo "Running install_appveyoragent..."
     AGENT_MODE=${1-}
     CONFIG_FILE=appsettings.json
     PROJECT_BUILDS_DIRECTORY="$USER_HOME"/projects
@@ -417,6 +420,7 @@ WantedBy=multi-user.target" > /etc/systemd/system/${SERVICE_NAME} &&
 }
 
 function install_nodejs() {
+    echo "Running install_nodejs..."
     curl -fsSL https://deb.nodesource.com/setup_6.x | bash - &&
     apt-get -y -q install nodejs &&
     npm install -g pm2 ||
@@ -425,6 +429,7 @@ function install_nodejs() {
 }
 
 function install_nvm_and_nodejs() {
+    echo "Running install_nvm_and_nodejs..."
     if [ -n "${USER_NAME-}" ] && [ "${#USER_NAME}" -gt "0" ] && getent group ${USER_NAME}  >/dev/null; then
         su -l ${USER_NAME} -c "
             USER_NAME=${USER_NAME}
@@ -446,6 +451,7 @@ function install_nvm_and_nodejs() {
 }
 
 function install_nvm() {
+    echo "Running install_nvm..."
     # this must be executed as appveyor user
     if [ "$(whoami)" != "${USER_NAME}" ]; then
         echo "This script must be run as '${USER_NAME}' user. Current user is '$(whoami)'" 1>&2
@@ -459,6 +465,7 @@ function install_nvm() {
 }
 
 function install_nvm_nodejs() {
+    echo "Running install_nvm_nodejs..."
     # this must be executed as appveyor user
     if [ "$(whoami)" != "${USER_NAME}" ]; then
         echo "This script must be run as '${USER_NAME}'. Current user is '$(whoami)'" 1>&2
@@ -514,6 +521,7 @@ function make_git() {
 }
 
 function install_gitlfs() {
+    echo "Running install_gitlfs..."
     command -v git || apt-get -y -q install git
     curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash &&
     apt-get -y -q install git-lfs ||
@@ -541,6 +549,7 @@ function configure_gitlfs() {
 }
 
 function install_cvs() {
+    echo "Running install_cvs..."
     # install git
     # at this time there is git version 2.7.4 in apt repos
     # in case if we need recent version we have to run make_git function
@@ -584,6 +593,7 @@ password-stores =" > .subversion/config ||
 }
 
 function install_virtualenv() {
+    echo "Running install_virtualenv..."
     command -v pip || install_pip
     pip install virtualenv ||
         { echo "[WARNING] Cannot install virtualenv with pip." ; return 10; }
@@ -592,6 +602,7 @@ function install_virtualenv() {
 }
 
 function install_pip() {
+    echo "Running install_pip..."
     curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py" ||
         { echo "[WARNING] Cannot download pip bootstrap script." ; return 10; }
     python get-pip.py ||
@@ -634,6 +645,7 @@ function install_pythons(){
 }
 
 function install_powershell() {
+    echo "Running install_powershell..."
     # Import the public repository GPG keys
     curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - &&
     # Register the Microsoft Ubuntu repository
@@ -746,6 +758,7 @@ function config_dotnet_repository() {
 }
 
 function install_dotnets() {
+    echo "Running install_dotnets..."
     prepare_dotnet_packages
     config_dotnet_repository
 
@@ -788,6 +801,7 @@ function prerequisites_dotnetv3_preview () {
 }
 
 function install_dotnetv3_preview() {
+    echo "Running install_dotnetv3_preview..."
     local DOTNET3_SDK_URL
     if [[ -z "${1-}" || "${#1}" = "0" ]]; then
         DOTNET3_SDK_URL="https://download.visualstudio.microsoft.com/download/pr/a0e368ac-7161-4bde-a139-1a3ef5a82bbe/439cdbb58950916d3718771c5d986c35/dotnet-sdk-3.0.100-preview8-013656-linux-x64.tar.gz"
@@ -829,6 +843,7 @@ function install_dotnetv3_preview() {
 }
 
 function install_mono() {
+    echo "Running install_mono..."
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF &&
     add-apt-repository "deb http://download.mono-project.com/repo/ubuntu stable-${OS_CODENAME} main" ||
         { echo "[ERROR] Cannot add Mono repository to APT sources." 1>&2; return 10; }
@@ -843,6 +858,7 @@ function install_mono() {
 }
 
 function install_jdks_from_repository() {
+    echo "Running install_jdks_from_repository..."
     add-apt-repository -y ppa:openjdk-r/ppa
     apt-get -y -qq update && {
         apt-get -y -q install --no-install-recommends openjdk-7-jdk
@@ -854,6 +870,7 @@ function install_jdks_from_repository() {
 }
 
 function install_jdks() {
+    echo "Running install_jdks..."
     install_jdks_from_repository || return $?
 
     install_jdk 9 https://download.java.net/java/GA/jdk9/9.0.4/binaries/openjdk-9.0.4_linux-x64_bin.tar.gz ||
@@ -886,6 +903,7 @@ function install_jdks() {
 }
 
 function install_jdk() {
+    echo "Running install_jdk..."
     local JDK_VERSION=$1
     local JDK_URL="$2"
     local JDK_ARCHIVE=${JDK_URL##*/}
@@ -933,6 +951,7 @@ function configure_jdk() {
 }
 
 function install_rvm_and_rubies() {
+    echo "Running install_rvm_and_rubies..."
     if [ -n "${USER_NAME-}" ] && [ "${#USER_NAME}" -gt "0" ] && getent group ${USER_NAME}  >/dev/null; then
         su -l ${USER_NAME} -c "
             USER_NAME=${USER_NAME}
@@ -951,6 +970,7 @@ function install_rvm_and_rubies() {
 }
 
 function install_rvm() {
+    echo "Running install_rvm..."
     # this must be executed as appveyor user
     if [ "$(whoami)" != "${USER_NAME}" ]; then
         echo "This script must be run as '${USER_NAME}'. Current user is '$(whoami)'" 1>&2
@@ -981,6 +1001,7 @@ function install_rvm() {
 }
 
 function install_rubies() {
+    echo "Running install_rubies..."
     # this must be executed as appveyor user
     if [ "$(whoami)" != "${USER_NAME}" ]; then
         echo "This script must be run as '${USER_NAME}'. Current user is '$(whoami)'" 1>&2
@@ -999,6 +1020,7 @@ function install_rubies() {
 }
 
 function install_gvm_and_golangs() {
+    echo "Running install_gvm_and_golangs..."
     if [ -n "${USER_NAME-}" ] && [ "${#USER_NAME}" -gt "0" ] && getent group ${USER_NAME}  >/dev/null; then
         su -l ${USER_NAME} -c "
             USER_NAME=${USER_NAME}
@@ -1019,7 +1041,8 @@ function install_gvm_and_golangs() {
     fi
 }
 
-function install_gvm(){
+function install_gvm() {
+    echo "Running install_gvm..."
     # this must be executed as appveyor user
     if [ "$(whoami)" != "${USER_NAME}" ]; then
         echo "This script must be run as '${USER_NAME}'. Current user is '$(whoami)'" 1>&2
@@ -1044,6 +1067,7 @@ function install_gvm(){
 }
 
 function install_golangs() {
+    echo "Running install_golangs..."
     # this must be executed as appveyor user
     if [ "$(whoami)" != "${USER_NAME}" ]; then
         echo "This script must be run as '${USER_NAME}'. Current user is '$(whoami)'" 1>&2
@@ -1077,6 +1101,7 @@ function pull_dockerimages() {
 }
 
 function install_docker() {
+    echo "Running install_docker..."
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - &&
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu ${OS_CODENAME} stable" ||
         { echo "[ERROR] Cannot add Docker repository to APT sources." 1>&2; return 10; }
@@ -1095,7 +1120,8 @@ function install_docker() {
     log_version dpkg -l docker-ce
 }
 
-function install_MSSQLServer(){
+function install_MSSQLServer() {
+    echo "Running install_MSSQLServer()..."
     if [[ -z "${MSSQL_SA_PASSWORD-}" || "${#MSSQL_SA_PASSWORD}" = "0" ]]; then MSSQL_SA_PASSWORD="Password12!"; fi
     install_sqlserver
     if [ -n "${USER_NAME-}" ] && [ "${#USER_NAME}" -gt "0" ] && getent group ${USER_NAME}  >/dev/null; then
@@ -1115,6 +1141,7 @@ function install_MSSQLServer(){
 }
 
 function install_sqlserver() {
+    echo "Running install_sqlserver..."
     curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - &&
     add-apt-repository "$(curl -fsSL https://packages.microsoft.com/config/ubuntu/16.04/mssql-server-2017.list)" ||
         { echo "[ERROR] Cannot add mssql-server repository to APT sources." 1>&2; return 10; }
@@ -1177,6 +1204,7 @@ function configure_apt_mysql() {
 }
 
 function install_mysql() {
+    echo "Running install_mysql..."
     configure_apt_mysql
 
     apt-get -y -q install mysql-server ||
@@ -1189,6 +1217,7 @@ function install_mysql() {
 }
 
 function install_postgresql() {
+    echo "Running install_postgresql..."
     if [[ -z "${POSTGRES_ROOT_PASSWORD-}" || "${#POSTGRES_ROOT_PASSWORD}" = "0" ]]; then POSTGRES_ROOT_PASSWORD="Password12!"; fi
     curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - &&
     add-apt-repository "deb http://apt.postgresql.org/pub/repos/apt/ ${OS_CODENAME}-pgdg main" ||
@@ -1207,6 +1236,7 @@ function install_postgresql() {
 }
 
 function install_mongodb() {
+    echo "Running install_mongodb..."
     curl -fsSL https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - &&
     add-apt-repository "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu ${OS_CODENAME}/mongodb-org/4.2 multiverse" ||
         { echo "[ERROR] Cannot add mongodb repository to APT sources." 1>&2; return 10; }
@@ -1232,6 +1262,7 @@ WantedBy=multi-user.target" > /etc/systemd/system/mongodb.service &&
 }
 
 function install_redis() {
+    echo "Running install_redis..."
     if command -v redis-server && redis-server --version; then
         echo "[WARNING] Redis server already installed."
         return 0
@@ -1274,6 +1305,7 @@ Restart=always" > /etc/systemd/system/redis.service
 }
 
 function install_rabbitmq() {
+    echo "Running install_rabbitmq..."
     curl -fsSL https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc | apt-key add - &&
     curl -fsSL http://www.rabbitmq.com/rabbitmq-signing-key-public.asc | apt-key add - &&
     add-apt-repository "deb http://www.rabbitmq.com/debian/ testing main" ||
@@ -1291,6 +1323,7 @@ function install_rabbitmq() {
 }
 
 function install_p7zip() {
+    echo "Running install_p7zip..."
     local TMP_DIR=$(mktemp -d)
     pushd -- ${TMP_DIR}
     curl -fsSL -O https://sourceforge.net/projects/p7zip/files/p7zip/16.02/p7zip_16.02_src_all.tar.bz2 &&
@@ -1305,6 +1338,7 @@ function install_p7zip() {
 }
 
 function install_packer() {
+    echo "Running install_packer..."
     local VERSION
     if [[ -z "${1-}" || "${#1}" = "0" ]]; then
         VERSION=1.4.3
@@ -1321,6 +1355,7 @@ function install_packer() {
 }
 
 function install_yarn() {
+    echo "Running install_yarn..."
     curl -fsSL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - &&
     add-apt-repository "deb https://dl.yarnpkg.com/debian/ stable main" ||
         { echo "[ERROR] Cannot add yarn repository to APT sources." 1>&2; return 10; }
@@ -1331,12 +1366,14 @@ function install_yarn() {
 }
 
 function install_awscli() {
+    echo "Running install_awscli..."
     pip install awscli ||
         { echo "[ERROR] Cannot install awscli." 1>&2; return 10; }
     log_version aws --version
 }
 
 function install_localstack() {
+    echo "Running install_localstack..."
     pip install localstack ||
         { echo "[ERROR] Cannot install localstack." 1>&2; return 10; }
     # since version 0.8.8 localstack requires but do not have in dependencies amazon_kclpy
@@ -1346,6 +1383,7 @@ function install_localstack() {
 }
 
 function install_gcloud() {
+    echo "Running install_gcloud..."
     apt-get install apt-transport-https ca-certificates &&
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list &&
     curl -fsSL "https://packages.cloud.google.com/apt/doc/apt-key.gpg" | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - ||
@@ -1358,6 +1396,7 @@ function install_gcloud() {
 }
 
 function install_azurecli() {
+    echo "Running install_azurecli..."
     AZ_REPO=${OS_CODENAME}
     add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" ||
         { echo "[ERROR] Cannot add azure-cli repository to APT sources." 1>&2; return 10; }
@@ -1370,6 +1409,7 @@ function install_azurecli() {
 }
 
 function install_cmake() {
+    echo "Running install_cmake..."
     local VERSION
     if [[ -z "${1-}" || "${#1}" = "0" ]]; then
         VERSION=3.15.3
@@ -1400,6 +1440,7 @@ function update_nuget() {
 }
 
 function install_kubectl() {
+    echo "Running install_kubectl..."
     KUBE_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
     curl -LO "https://storage.googleapis.com/kubernetes-release/release/${KUBE_VERSION}/bin/linux/amd64/kubectl" &&
     chmod +x ./kubectl &&
@@ -1408,6 +1449,7 @@ function install_kubectl() {
 }
 
 function install_gcc() {
+    echo "Running install_gcc..."
     # add existing gcc's to alternatives
     if [[ -f /usr/bin/gcc-5 ]] && [[ -f /usr/bin/g++-5 ]]; then
         update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60 --slave /usr/bin/g++ g++ /usr/bin/g++-5 ||
@@ -1429,6 +1471,7 @@ function install_gcc() {
 }
 
 function install_curl() {
+    echo "Running install_curl..."
     local VERSION
     if [[ -z "${1-}" || "${#1}" = "0" ]]; then
         VERSION=7.65.3
@@ -1460,6 +1503,7 @@ function install_curl() {
 }
 
 function install_browsers() {
+    echo "Running install_browsers..."
     local DEBNAME=google-chrome-stable_current_amd64.deb
     add-apt-repository -y ppa:ubuntu-mozilla-security/ppa &&
     apt-get -y -qq update &&
@@ -1477,6 +1521,7 @@ function install_browsers() {
 # https://download.virtualbox.org/virtualbox/6.0.6/virtualbox-6.0_6.0.6-130049~Ubuntu~bionic_amd64.deb
 # https://download.virtualbox.org/virtualbox/6.0.6/virtualbox-6.0_6.0.6-130049~Ubuntu~xenial_amd64.deb
 function install_virtualbox() {
+    echo "Running install_virtualbox..."
     local VERSION
     if [[ -z "${1-}" || "${#1}" = "0" ]]; then
         VERSION=6.0.12
@@ -1514,6 +1559,7 @@ function install_virtualbox() {
 }
 
 function install_clang() {
+    echo "Running install_clang..."
     curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - &&
     apt-add-repository "deb http://apt.llvm.org/${OS_CODENAME}/ llvm-toolchain-${OS_CODENAME}-6.0 main" ||
         { echo "[ERROR] Cannot add llvm repository to APT sources." 1>&2; return 10; }
@@ -1530,6 +1576,7 @@ function install_clang() {
 }
 
 function install_octo() {
+    echo "Running install_octo..."
     local OCTO_VERSION, OCTO_URL
     if [[ -z "${1-}" || "${#1}" = "0" ]]; then
         OCTO_VERSION=6.12.0
